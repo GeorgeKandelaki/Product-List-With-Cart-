@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- displays site properly based on user's device -->
+
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="./assets/images/favicon-32x32.png"
+		/>
+
+		<title>Frontend Mentor | Product list with cart</title>
+
+		<!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
+		<style>
+			.attribution {
+				display: none;
+				font-size: 11px;
+				text-align: center;
+			}
+			.attribution a {
+				color: hsl(228, 45%, 44%);
+			}
+		</style>
+		<link href="css/style.css" rel="stylesheet" />
+		<script defer src="js/index.js"></script>
+	</head>
+
+	<body>
+		<div class="order-confirmed content-disable">
+			<div class="order-confirmed__img-box">
+				<img
+					src="/assets/images/icon-order-confirmed.svg"
+					alt="Image of an complited order"
+					class="order-confirmed__complited-img"
+				/>
+			</div>
+			
+			<div class="order-confirmed-text">
+
+				<p class="order-confirmed__header">Order Confirmed</h1>
+				<p class="order-confirmed__text">We hope you enjoy your food!</p>
+			</div>
+
+			<div class="order-confirmed__ordered">
+				<div class="order-confirmed__desserts">
+					<div class="order-confirmed__product">
+						<img src="/assets/images/image-baklava-mobile.jpg" alt="Image of the dessert" class="order-confirmed__product-img" />
+
+						<div class="order-confirmed__value">
+							<p class="order-confirmed__name ">
+								Classic Tiramisu
+							</p>
+							<span class="order-confirmed__qnt product__qnt">1x</span>
+							<span class="order-confirmed__price">@ $7.00</span>
+						</div>
+
+						<span class="order-confirmed__product-total">$13.00</span>
+					</div>
+				</div>
+				<div class="order-confirmed__total">
+					<p>Order Total:</p>
+					<strong class="order-confirmed__total-price">$0</strong>
+				</div>
+			</div>
+
+			<a href="" class="btn btn--order">Start a new order</a>
+		</div>
+		<div class="overlay content-disable">&nbsp;</div>
+
+		<main class="main">
+			<div class="main-container">
+				<h1 class="heading-primary">Desserts</h1>
+				<div class="desserts">
+					<!-- <div class="desserts__dessert">
+						<div class="desserts__img">
+							<img
+								src="/assets//images/image-waffle-thumbnail.jpg"
+								alt=""
+							/>
+							<a class="btn btn--add-to-cart" href="#">Add to Cart</a>
+						</div>
+						<span class="desserts__type">Waffle</span>
+						<p class="desserts__name">Waffle with Berries</p>
+						<span class="desserts__price">6.50</span>
+						</div>
+					</div> -->
+				</div>
+			</div>
+
+			<div class="cart">
+				<h2 class="heading-secondary">
+					Your Cart (<span class="cart__quantity">0</span>)
+				</h2>
+				<div class="cart__content">
+					<div class="cart__products">
+						<div class="cart__img-box">
+							<img
+								src="/assets/images/illustration-empty-cart.svg"
+								alt="Image of an Cake"
+							/>
+						</div>
+
+						<!-- ORDERED PRODUCTS HERE -->
+						<!-- <div class="product">
+							<div class="product__content">
+								<p class="product__name">Classic Tiramisu</p>
+								<span class="product__qnt">1x</span>
+								<span class="product__price">@ $7.00</span>
+								<span class="product__total">$13.00</span>
+							</div>
+							<span class="btn-remove"
+								><img
+									src="/assets/images/icon-remove-item.svg"
+									alt="Image of an X"
+							/></span>
+						</div> -->
+						<span class="product__text">
+							Your added items will appear here
+						</span>
+					</div>
+
+					<div class="cart__order content-disable">
+						<div class="cart__total">
+							Order Total
+							<strong class="cart__total-price">$0</strong>
+						</div>
+						<div class="cart__delivery-type">
+							<img
+								src="/assets/images/icon-carbon-neutral.svg"
+								alt="Image of an carbon neutral"
+							/>
+							This is a <strong>carbon-neutral</strong> delivery
+						</div>
+
+						<a href="#" class="btn btn--order">Confirm Order</a>
+					</div>
+				</div>
+			</div>
+		</main>
+		
+		<svg>
+			<use xlink:href="assets/images/icon-remove-item.svg"></use>
+		</svg>
+
+		<div class="attribution">
+			Challenge by
+			<a href="https://www.frontendmentor.io?ref=challenge"
+				>Frontend Mentor</a
+			>. Coded by
+			<a href="https://github.com/georgekandelaki">George Kandelaki</a>.
+		</div>
+	</body>
+</html>
