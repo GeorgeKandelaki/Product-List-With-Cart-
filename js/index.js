@@ -34,12 +34,16 @@ function renderHTML(parentElement, html, appendType) {
 	return true;
 }
 
+function createTemplate(data, fn) {
+	return data.map(fn).join(" ");
+}
+
 // Create a template for the product CARDS
 function createDessertCardTemplate(data) {
-	const template = data
-		.map(
-			(obj) =>
-				`
+	return createTemplate(
+		data,
+		(obj) =>
+			`
 				<div class="desserts__dessert" id="${obj.name
 					.toLowerCase()
 					.split(" ")
@@ -55,17 +59,14 @@ function createDessertCardTemplate(data) {
 					<span class="desserts__price">$${obj.price.toFixed(2)}</span> 
 				</div>	
 		`
-		)
-		.join(" ");
-
-	return template;
+	);
 }
 
 // Create A template for products in the CART
 function createAddedDessertsTemplate(data) {
-	const template = data
-		.map(
-			(obj) => `
+	return createTemplate(
+		data,
+		(obj) => `
 						<div class="product">
 							<div class="product__content">
 								<p class="product__name">${obj.name}</p>
@@ -74,22 +75,19 @@ function createAddedDessertsTemplate(data) {
 								<span class="product__total">$${(obj.price * obj.quantity).toFixed(2)}</span>
 							</div>
 							<span class="btn-remove">
-								<svg class="btn-remove-svg" xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 10 10"><path  d="M8.375 9.375 5 6 1.625 9.375l-1-1L4 5 .625 1.625l1-1L5 4 8.375.625l1 1L6 5l3.375 3.375-1 1Z"/></svg>
+								<svg class="btn-remove-svg" xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 10 10"><path class="btn-remove-svg" d="M8.375 9.375 5 6 1.625 9.375l-1-1L4 5 .625 1.625l1-1L5 4 8.375.625l1 1L6 5l3.375 3.375-1 1Z"/></svg>
 								
 							</span>
 						</div>
 								`
-		)
-		.join(" ");
-
-	return template;
+	);
 }
 
 // Create A Template For the Ordered Products
 function createOrderedDessertTemplate(data) {
-	const template = data
-		.map(
-			(obj) => `
+	return createTemplate(
+		data,
+		(obj) => `
 					<div class="order-confirmed__product">
 						<img src="${
 							obj.image.mobile
@@ -108,10 +106,7 @@ function createOrderedDessertTemplate(data) {
 						).toFixed(2)}</span>
 					</div>
 	`
-		)
-		.join(" ");
-
-	return template;
+	);
 }
 
 // Calculate price
@@ -119,6 +114,7 @@ function calcPrice(data) {
 	const totalPrice = (data.price * data.quantity).toFixed(2);
 	return Number(totalPrice);
 }
+
 // Calculate the Quantity Of Selected products
 function calcTotalQuantity(addedDesserts) {
 	const totalQuantity = addedDesserts.reduce(
@@ -154,43 +150,33 @@ function renderUpdatedCartHTML(parentElement, template, data) {
 
 // Add Dessert to the Cart, Also Update the Total Price and quantity
 function addDessertToCart(data, targetDessert) {
+	// Find the Dessert
 	const dessert = data.find((obj) => obj.name == targetDessert.innerHTML);
+	// Add Necessary Properties to the Object/Data
 	dessert.quantity = 1;
 	dessert.imgBox =
 		targetDessert.parentElement.querySelector(".desserts__img-box");
 	dessert.id = dessert.name.toLowerCase().split(" ").join("-");
+	// Push to the Selected Items Data
 	desserts.push(dessert);
+
 	dessert.imgBox.querySelector(".desserts__quantity").textContent =
 		dessert.quantity;
+
 	renderUpdatedCartHTML(
 		cartContainer,
 		createAddedDessertsTemplate(desserts),
 		desserts
 	);
 
-	return dessert;
-}
-
-// Update the quantity and the price of the desserts whenever user increments or decrements the quantity of the product
-function updateQuantityCounter(data, targetDessert, type) {
-	const dessert = data.find((obj) => obj.name == targetDessert.innerHTML);
-	if (type === "increment") dessert.quantity++;
-	else dessert.quantity--;
-
-	// Update total quantity after any incrementing or decrementing
 	document.querySelector(".cart__quantity").textContent =
 		calcTotalQuantity(desserts);
 
-	dessert.imgBox.querySelector(".desserts__quantity").textContent =
-		dessert.quantity;
-
-	renderUpdatedCartHTML(
-		cartContainer,
-		createAddedDessertsTemplate(data),
-		desserts
-	);
-
 	return dessert;
+}
+
+function toggleClasses(element, classList, add) {
+	return classList.forEach((cls) => element.classList.toggle(cls, add));
 }
 
 function updateButtonStates(targetDessert, isAdded) {
@@ -200,16 +186,79 @@ function updateButtonStates(targetDessert, isAdded) {
 	const addToCartBtn = parent.querySelector(".btn--add-to-cart");
 	const incrementBtn = parent.querySelector(".btn--increment-qnt");
 
-	addToCartBtn.classList.toggle("content-disable", isAdded);
-	incrementBtn.classList.toggle("content-disable", !isAdded);
-	parent
-		.querySelector(".desserts__img")
-		.classList.toggle("selected-dessert", isAdded);
+	toggleClasses(addToCartBtn, ["content-disable"], isAdded);
+	toggleClasses(incrementBtn, ["content-disable"], !isAdded);
+	toggleClasses(
+		parent.querySelector(".desserts__img"),
+		["selected-dessert"],
+		isAdded
+	);
 }
 
+// Update the quantity and the price of the desserts whenever user increments or decrements the quantity of the product
+function updateQuantityCounter(dessert, type) {
+	if (type === "increment") dessert.quantity++;
+	else dessert.quantity--;
+
+	// Update total quantity after any incrementing or decrementing
+	document.querySelector(".cart__quantity").textContent =
+		calcTotalQuantity(desserts);
+
+	// Update the Individual quantity of the dessert
+	dessert.imgBox.querySelector(".desserts__quantity").textContent =
+		dessert.quantity;
+
+	// Update the cart
+	renderUpdatedCartHTML(
+		cartContainer,
+		createAddedDessertsTemplate(desserts),
+		desserts
+	);
+
+	// Check If the quantity of the individual dessert is < 1
+	if (dessert.quantity < 1) {
+		// Update the data
+		desserts = desserts.filter(({ name }) => name !== dessert.name);
+
+		updateButtonStates(dessert.name, false);
+		renderUpdatedCartHTML(
+			cartContainer,
+			createAddedDessertsTemplate(desserts),
+			desserts
+		);
+	}
+
+	// Check If overall quantity is less then one
+	if (calcTotalQuantity(desserts) < 1) emptyCartState();
+
+	return dessert;
+}
+
+// Delete One Item From Collection of Data
 function deleteOne(data, dessert) {
-	const newArr = data.filter(({ name }) => name != dessert.innerHTML);
+	const newArr = data.filter(({ name }) => name != dessert);
 	return newArr;
+}
+
+function emptyCartState() {
+	document.querySelector(".cart__order").classList.add("content-disable");
+	document.querySelector(".cart__products").innerHTML = `
+			<div class="cart__img-box">
+				<img
+					src="/assets/images/illustration-empty-cart.svg"
+					alt="Image of an Cake"
+				/>
+			</div>
+			<span class="product__text">Your added items will appear here</span>
+`;
+	return true;
+}
+
+function toggleDialogAndOverlay(el, isAdded) {
+	document.querySelector(el).classList.toggle("content-disable", !isAdded);
+	document
+		.querySelector(".overlay")
+		.classList.toggle("content-disable", !isAdded);
 }
 
 dessertsContainer.addEventListener("click", (el) => {
@@ -224,11 +273,7 @@ dessertsContainer.addEventListener("click", (el) => {
 			);
 
 		updateButtonStates(targetDessert.innerHTML, true);
-		addDessertToCart(dessertsData, targetDessert);
-		document.querySelector(".cart__quantity").textContent =
-			calcTotalQuantity(desserts);
-
-		return true;
+		return addDessertToCart(dessertsData, targetDessert);
 	}
 
 	// Listening For Incrementing Quantity of the Product
@@ -237,9 +282,12 @@ dessertsContainer.addEventListener("click", (el) => {
 			el.target.parentElement.parentElement.parentElement.parentElement.querySelector(
 				".desserts__name"
 			);
-		updateQuantityCounter(desserts, targetDessert, "increment");
 
-		return true;
+		const dessert = desserts.find(
+			(obj) => obj.name == targetDessert.innerHTML
+		);
+
+		return updateQuantityCounter(dessert, "increment");
 	}
 
 	// Listening For Decremnting Quantity of the Product
@@ -250,36 +298,11 @@ dessertsContainer.addEventListener("click", (el) => {
 			);
 
 		// Check If the Quantity Lower than 1, if it is remove from the products and remove active states
-		const dessert = updateQuantityCounter(
-			desserts,
-			targetDessert,
-			"decrement"
+		const dessert = desserts.find(
+			(obj) => obj.name == targetDessert.innerHTML
 		);
 
-		if (dessert.quantity < 1) {
-			desserts = desserts.filter(({ name }) => name !== dessert.name);
-			updateButtonStates(targetDessert.innerHTML, false);
-			renderUpdatedCartHTML(
-				cartContainer,
-				createAddedDessertsTemplate(desserts),
-				desserts
-			);
-
-			document
-				.querySelector(".cart__order")
-				.classList.add("content-disable");
-			document.querySelector(".cart__products").innerHTML = `
-						<div class="cart__img-box">
-							<img
-								src="/assets/images/illustration-empty-cart.svg"
-								alt="Image of an Cake"
-							/>
-						</div>
-						<span class="product__text">Your added items will appear here</span>
-			`;
-		}
-
-		return true;
+		return updateQuantityCounter(dessert, "decrement");
 	}
 });
 
@@ -287,56 +310,48 @@ cartContainer.parentElement.addEventListener("click", (el) => {
 	el.preventDefault();
 	let targetDessert;
 
+	// Check If the Dessert is removed from the Selected
 	if (
 		el.target.classList.contains("btn-remove-svg") ||
 		el.target.classList.contains("btn-remove")
 	) {
 		targetDessert =
-			el.target.parentElement.parentElement.querySelector(
+			el.target.parentElement.parentElement.parentElement.querySelector(
 				".product__name"
 			);
 
-		desserts = deleteOne(desserts, targetDessert);
+		// Update The data
+		desserts = deleteOne(desserts, targetDessert.innerHTML);
+
 		updateButtonStates(targetDessert.innerHTML, false);
+
 		renderUpdatedCartHTML(
 			cartContainer,
 			createAddedDessertsTemplate(desserts),
 			desserts
 		);
-		document.querySelector(".cart__quantity").textContent =
-			calcTotalQuantity(desserts);
-
-		if (calcTotalQuantity(desserts) < 1) {
-			document
-				.querySelector(".cart__order")
-				.classList.add("content-disable");
-			document.querySelector(".cart__products").innerHTML = `
-						<div class="cart__img-box">
-							<img
-								src="/assets/images/illustration-empty-cart.svg"
-								alt="Image of an Cake"
-							/>
-						</div>
-						<span class="product__text">Your added items will appear here</span>
-			`;
-			return true;
-		}
 	}
 
+	// Check If overall quantity is less then one
+	if (calcTotalQuantity(desserts) < 1) emptyCartState();
+
+	// Check If Desserts Are Ordered
 	if (el.target.classList.contains("btn--order")) {
-		document
-			.querySelector(".order-confirmed")
-			.classList.remove("content-disable");
-		document.querySelector(".overlay").classList.remove("content-disable");
+		toggleDialogAndOverlay(".order-confirmed", true);
+
 		document.querySelector(
 			".order-confirmed__total-price"
 		).innerHTML = `$${calcTotalPrice(desserts).toFixed(2)}`;
-		renderHTML(
+
+		return renderHTML(
 			orderContainer,
 			createOrderedDessertTemplate(desserts),
 			"afterbegin"
 		);
 	}
+
+	return (document.querySelector(".cart__quantity").textContent =
+		calcTotalQuantity(desserts));
 });
 
 document.querySelector(".order-confirmed").addEventListener("click", (el) => {
@@ -344,28 +359,13 @@ document.querySelector(".order-confirmed").addEventListener("click", (el) => {
 	if (!el.target.classList.contains("btn--order")) return;
 	desserts.forEach((obj) => updateButtonStates(obj.name, false));
 	desserts = [];
-	renderUpdatedCartHTML(cartContainer, "", desserts);
-	document.querySelector(".order-confirmed").classList.add("content-disable");
-	document.querySelector(".overlay").classList.add("content-disable");
-	document.querySelector(".cart__order").classList.add("content-disable");
-	document.querySelector(".cart__products").innerHTML = `
-			<div class="cart__img-box">
-				<img
-					src="/assets/images/illustration-empty-cart.svg"
-					alt="Image of an Cake"
-				/>
-			</div>
-			<span class="product__text">Your added items will appear here</span>
-			`;
-	document.querySelector(".cart__quantity").textContent =
-		calcTotalQuantity(desserts);
+	toggleDialogAndOverlay(".order-confirmed", false);
+	emptyCartState();
+
+	return (document.querySelector(".cart__quantity").textContent =
+		calcTotalQuantity(desserts));
 });
 
-document.addEventListener("keydown", (e) => {
-	if (e.key === "Escape") {
-		document
-			.querySelector(".order-confirmed")
-			.classList.add("content-disable");
-		document.querySelector(".overlay").classList.add("content-disable");
-	}
+document.body.addEventListener("keydown", (e) => {
+	if (e.key === "Escape") toggleDialogAndOverlay(".order-confirmed", false);
 });
